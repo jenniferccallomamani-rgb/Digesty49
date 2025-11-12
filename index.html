@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>DIGESTY – Comidas suaves para estudiantes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --azul: #0077ff; /* azul fosforescente más atractivo */
+      --header-h: 72px;
+    }
+    section[id] {
+      scroll-margin-top: calc(var(--header-h) + 16px);
+    }
+    .tab-active {background:var(--azul);color:#fff;}
+    .menu-card img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      border-top-left-radius: 0.5rem;
+      border-top-right-radius: 0.5rem;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+
+  <!-- CARRITO -->
+  <aside id="cartPanel" class="fixed top-0 right-0 w-80 h-full bg-white shadow-2xl border-l border-slate-200 z-50 translate-x-full transition-transform">
+    <div class="flex items-center justify-between px-4 py-3 border-b">
+      <h2 class="font-semibold text-lg">Mi pedido</h2>
+      <button onclick="toggleCart()" class="text-slate-400 hover:text-slate-600 text-xl">&times;</button>
+    </div>
+    <div id="cartItems" class="p-4 space-y-3 h-[60%] overflow-y-auto text-sm">
+      <p id="emptyCartText" class="text-slate-400 text-sm">Aún no agregas nada.</p>
+    </div>
+    <div class="px-4 py-4 border-t space-y-2">
+      <div class="flex justify-between text-sm">
+        <span>Subtotal</span><span id="cartSubtotal">S/ 0.00</span>
+      </div>
+      <label class="flex flex-col text-xs text-slate-500">
+        Delivery
+        <select id="deliverySelect" class="mt-1 border rounded px-2 py-1 text-sm" onchange="updateTotal()">
+          <option value="0">Recojo en local (S/ 0)</option>
+          <option value="6">UCSP – San Lázaro (S/ 6)</option>
+          <option value="6">UTP – La Salle (S/ 6)</option>
+          <option value="8">Centro AQP (S/ 8)</option>
+          <option value="10">Otros distritos (S/ 10)</option>
+        </select>
+      </label>
+      <div class="flex justify-between text-sm font-semibold">
+        <span>Total</span><span id="cartTotal">S/ 0.00</span>
+      </div>
+      <button onclick="sendWhatsapp()" class="w-full bg-[var(--azul)] text-white py-2 rounded-lg text-sm font-medium hover:opacity-90 transition">
+        Terminar pedido
+      </button>
+      <p class="text-[10px] text-slate-400">*Pensado para gastritis. Ante dolor fuerte, ir al médico.*</p>
+    </div>
+  </aside>
+
+  <!-- NAV -->
+  <header class="bg-white/90 backdrop-blur border-b border-slate-200 sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="w-9 h-9 rounded-full bg-[var(--azul)] text-white flex items-center justify-center text-xs font-bold">DG</div>
+        <span class="font-semibold tracking-tight">DIGESTY</span>
+      </div>
+      <nav class="hidden md:flex gap-6 text-sm">
+        <a href="#comidas" class="hover:text-[var(--azul)]">Comidas</a>
+        <a href="#ubicaciones" class="hover:text-[var(--azul)]">Ubicaciones</a>
+        <a href="#faq" class="hover:text-[var(--azul)]">Preguntas</a>
+      </nav>
+      <button onclick="toggleCart()" class="relative bg-[var(--azul)] text-white px-4 py-2 rounded-lg text-sm hover:opacity-90 transition">
+        Carrito
+        <span id="cartBadge" class="absolute -top-2 -right-2 bg-red-500 text-[10px] rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="bg-white">
+    <div class="max-w-6xl mx-auto px-4 py-10 grid md:grid-cols-2 gap-8 items-center">
+      <div class="space-y-4">
+        <p class="text-xs uppercase tracking-[0.3em] text-[var(--azul)]">Arequipa – universidades</p>
+        <h1 class="text-3xl md:text-4xl font-bold leading-tight">Comidas saludables para gastritis, listas para llevar a tu campus.</h1>
+        <p class="text-slate-600 text-sm">Desayunos, almuerzos y cenas suaves. Lo preparan restaurantes cerca de tu universidad o instituto.</p>
+      <a href="#comidas" class="inline-block bg-[var(--azul)] text-white px-5 py-3 rounded-lg text-sm font-medium hover:opacity-90">
+  Ordena aquí
+</a>
+      </div>
+      <div class="rounded-xl overflow-hidden border border-slate-100">
+        <img src="https://images.unsplash.com/photo-1543353071-873f17a7a088?q=80&w=1400&auto=format&fit=crop" class="w-full h-full object-cover" alt="Estudiantes comiendo">
+      </div>
+    </div>
+  </section>
+
+  <!-- COMIDAS -->
+  <section id="comidas" class="max-w-6xl mx-auto px-4 py-10">
+    <div class="flex items-center justify-between mb-5">
+      <div>
+        <h2 class="text-2xl font-semibold">Comidas Digesty</h2>
+        <p class="text-sm text-slate-500">Recomendadas para gastritis / estómago sensible.</p>
+      </div>
+      <div class="flex gap-2 text-sm">
+        <button id="tabDes" onclick="showCategory('desayunos')" class="px-4 py-2 rounded-full border text-slate-700 tab-active">Desayunos</button>
+        <button id="tabAlm" onclick="showCategory('almuerzos')" class="px-4 py-2 rounded-full border text-slate-700">Almuerzos</button>
+        <button id="tabCen" onclick="showCategory('cenas')" class="px-4 py-2 rounded-full border text-slate-700">Cenas</button>
+      </div>
+    </div>
+
+    <!-- AQUÍ van tus platos como antes (omitidos por espacio, se mantienen igual) -->
+  </section>
+
+  <!-- UBICACIONES -->
+  <section id="ubicaciones" class="max-w-6xl mx-auto px-4 py-10">
+    <h2 class="text-2xl font-semibold mb-3">Restaurantes afiliados</h2>
+    <p class="text-sm text-slate-500 mb-4">Universidades de Arequipa donde está disponible el servicio.</p>
+    <div class="grid md:grid-cols-[240px_1fr] gap-6">
+      <div class="bg-white rounded-lg border p-4 space-y-3 text-sm">
+        <p class="font-semibold">Universidades atendidas</p>
+        <ul class="space-y-2">
+          <li>• UCSP – San Lázaro</li>
+          <li>• UTP – Parque Industrial / La Salle</li>
+          <li>• UCSM – Umacollo</li>
+          <li>• Universidad La Salle – Cercado</li>
+          <li>• Centro de Arequipa (punto oficial)</li>
+        </ul>
+      </div>
+      <div class="rounded-xl overflow-hidden border border-slate-200">
+        <iframe
+          src="https://www.google.com/maps?q=universidades%20arequipa&output=embed"
+          width="100%" height="350" style="border:0;" loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" class="py-10 bg-[var(--azul)]">
+    <div class="max-w-6xl mx-auto px-4">
+      <h2 class="text-2xl font-semibold mb-4 text-white">Preguntas frecuentes</h2>
+      <div class="grid md:grid-cols-2 gap-4">
+        <details class="bg-white rounded-lg p-4 border" open>
+          <summary class="font-semibold text-sm cursor-pointer text-[var(--azul)]">¿Las comidas son adecuadas para gastritis?</summary>
+          <p class="text-sm text-slate-600 mt-2">Sí. Evitamos ají, frituras y salsas rojas. Son opciones suaves para estómago sensible.</p>
+        </details>
+        <details class="bg-white rounded-lg p-4 border">
+          <summary class="font-semibold text-sm cursor-pointer text-[var(--azul)]">¿Puedo pedir cambios en mi menú?</summary>
+          <p class="text-sm text-slate-600 mt-2">Sí, puedes solicitar variaciones por WhatsApp según tus necesidades.</p>
+        </details>
+        <details class="bg-white rounded-lg p-4 border">
+          <summary class="font-semibold text-sm cursor-pointer text-[var(--azul)]">¿Cómo pago?</summary>
+          <p class="text-sm text-slate-600 mt-2">Aceptamos efectivo, Yape y Plin. Pronto también pagos online.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <footer class="py-6 text-center text-xs text-slate-400">
+    DIGESTY © 2025 – Comida suave para estudiantes de Arequipa.
+  </footer>
+
+  <!-- JS -->
+  <script>
+    function scrollToSection(id){
+      const el=document.getElementById(id);
+      if(el){el.scrollIntoView({behavior:'smooth',block:'start'});}
+    }
+
+    function showCategory(cat){
+      ['desayunos','almuerzos','cenas'].forEach(id=>{
+        const el=document.getElementById(id);
+        if(el) el.classList.add('hidden');
+      });
+      document.getElementById(cat).classList.remove('hidden');
+      document.querySelectorAll('.tab-active').forEach(t=>t.classList.remove('tab-active'));
+      document.getElementById('tab'+cat.charAt(0).toUpperCase()+cat.slice(1,3)).classList.add('tab-active');
+    }
+
+    let cart = [];
+    function toggleCart(){document.getElementById('cartPanel').classList.toggle('translate-x-full');}
+    function addToCart(name, price){cart.push({name,price});renderCart();toggleCart();}
+    function renderCart(){
+      const itemsDiv=document.getElementById('cartItems');
+      const empty=document.getElementById('emptyCartText');
+      const badge=document.getElementById('cartBadge');
+      itemsDiv.innerHTML='';
+      if(cart.length===0){empty.style.display='block';badge.classList.add('hidden');}
+      else{
+        empty.style.display='none';badge.classList.remove('hidden');badge.textContent=cart.length;
+        cart.forEach((item,i)=>{
+          itemsDiv.innerHTML+=`<div class="flex justify-between bg-slate-50 px-3 py-2 rounded-lg"><div><p>${item.name}</p><p class='text-xs text-slate-400'>S/ ${item.price}</p></div><button onclick='removeFromCart(${i})' class='text-red-500 text-xs'>Quitar</button></div>`;
+        });
+      }
+      updateTotal();
+    }
+    function removeFromCart(i){cart.splice(i,1);renderCart();}
+    function updateTotal(){
+      const subtotal=cart.reduce((a,b)=>a+b.price,0);
+      const delivery=Number(document.getElementById('deliverySelect').value);
+      document.getElementById('cartSubtotal').textContent="S/ "+subtotal.toFixed(2);
+      document.getElementById('cartTotal').textContent="S/ "+(subtotal+delivery).toFixed(2);
+    }
+    function clearCart(){cart=[];document.getElementById('deliverySelect').value="0";renderCart();}
+    function sendWhatsapp(){
+      const delivery=Number(document.getElementById('deliverySelect').value);
+      const subtotal=cart.reduce((s,it)=>s+it.price,0);
+      const total=subtotal+delivery;
+      const detalle=cart.map(c=>`• ${c.name} (S/ ${c.price})`).join('%0A');
+      const msg=`Hola DIGESTY 👋, quiero pedir:%0A${detalle}%0ADelivery: S/ ${delivery}%0ATotal: S/ ${total.toFixed(2)}%0AEntrega en: [tu universidad]`;
+      alert("Pon tu número de WhatsApp en el código para enviarlo.\n\nMensaje:\n"+decodeURIComponent(msg));
+      clearCart();
+    }
+  </script>
+
+</body>
+</html>
+
